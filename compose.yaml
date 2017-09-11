@@ -1,0 +1,68 @@
+version: '2'
+services:
+  drupal-local-mysql:
+    container_name: drupal-local-mysql
+    image: mysql:5.6
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: drupal
+      MYSQL_USER: mysql
+      MYSQL_PASSWORD: mysql
+    volumes:
+      - ~/Sites/sites-databases/drupal-local:/var/lib/mysql
+    networks:
+      - dockercompose
+    command: mysqld --max_allowed_packet=64M
+    restart: always
+  drupal-local:
+    container_name: drupal-local
+    image: codekoalas/drupal-dev:php7
+    environment:
+      MYSQL_SERVER: mysql
+      MYSQL_DATABASE: drupal
+      MYSQL_USER: mysql
+      MYSQL_PASSWORD: mysql
+      DRUPAL_BASE_URL: http://drupal-local.dev
+      DRUPAL_TRUSTED_HOSTS: drupal-local\.dev$$
+      DRUPAL_HTTPS: "off"
+      APACHE_DOCROOT: /var/www/site/docroot
+      PRODUCTION: "false"
+      SESmailhub: mail-relay.internal.local:25
+      LOCAL: "false"
+    volumes:
+      - ~/Sites/sites-files/drupal-local:/mnt/sites-files
+      #- ~/Sites/drupal-local:/var/www/site
+    networks:
+      - dockercompose
+    extra_hosts:
+      - "xdebug:192.168.237.237"
+    links:
+      - drupal-local-mysql:mysql
+    networks:
+      - dockercompose
+    restart: always
+  drupal-local-php-fpm:
+    container_name: drupal-local-php-fpm
+    image: codekoalas/php:7-fpm-alpine
+    volumes_from:
+      - drupal-local
+    links:
+      - drupal-local-mysql:mysql
+    networks:
+      - dockercompose
+    restart: always
+  drupal-local-nginx:
+    container_name: drupal-local-nginx
+    image: codekoalas/nginx
+    volumes_from:
+      - drupal-local
+    environment:
+      VIRTUAL_HOST: .drupal-local.dev
+      APACHE_DOCROOT: /var/www/site/docroot
+    networks:
+      - dockercompose
+    restart: always
+networks:
+  dockercompose:
+    external:
+      name: dockercompose_dockercompose

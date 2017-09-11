@@ -1,0 +1,42 @@
+<?php
+
+$databases['default']['default'] = array (
+  'database' => '{{getenv "MYSQL_DATABASE"}}',
+  'username' => '{{getenv "MYSQL_USER"}}',
+  'password' => '{{getenv "MYSQL_PASSWORD"}}',
+  'prefix' => '',
+  'host' => '{{getenv "MYSQL_SERVER"}}',
+  'port' => '3306',
+  'namespace' => 'Drupal\\Core\\Database\\Driver\\mysql',
+  'driver' => 'mysql',
+);
+
+$config_directories = array();
+
+$settings['hash_salt'] = 'm2nG9ERZytBVmF4OoYR7lc-2S9Gd5bHHbbxqnYNiaXHIzGgzvMbA2FweA5LkgE3AJ3Tf0k9Sng';
+
+$settings['update_free_access'] = FALSE;
+
+$settings['container_yamls'][] = __DIR__ . '/services.yml';
+
+$settings['install_profile'] = 'standard';
+$config_directories[CONFIG_SYNC_DIRECTORY] = '../sync';
+$settings['file_private_path']  = '../private';
+
+$settings['trusted_host_patterns'] = array(
+  '{{getenv "DRUPAL_TRUSTED_HOSTS"}}',
+  'codekoalas\.com',
+  'sociy\.io',
+  'stagingserver\.site',
+  'dev',
+);
+
+$settings['base_url'] = '{{getenv "DRUPAL_BASE_URL"}}';
+
+/**
+ * Include a custom settings file if it exists.
+ */
+$custom_settings = DRUPAL_ROOT . '/sites/default/custom.settings.php';
+if (file_exists($custom_settings)) {
+  include $custom_settings;
+}

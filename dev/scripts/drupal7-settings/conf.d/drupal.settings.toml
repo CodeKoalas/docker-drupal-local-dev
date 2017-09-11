@@ -1,0 +1,3 @@
+[template]
+src = "drupal.settings.tmpl"
+dest = "/root/apache_docroot/sites/default/settings.php"
